@@ -1,0 +1,16 @@
+[project]
+name = "errand"
+version = "0.1.0"
+description = "Read the council agendas; put the meetings that matter on my calendar."
+requires-python = ">=3.11"
+dependencies = ["requests>=2.31", "pypdf>=4.0"]
+
+[project.scripts]
+errand = "errand.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["errand"]

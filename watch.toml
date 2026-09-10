@@ -1,22 +1,38 @@
 # Which meetings to read, and how far "my neighborhood" reaches. Plain data, not code.
 # The exact spot is HOME_LAT and HOME_LON in .env, which stays out of the repo.
+#
+# The comments below are for whoever builds the tools: where each source publishes
+# and how the model that runs the errand is kept on a leash. A reader can skip them.
 
 days_ahead = 14
 radius_km = 1.5
 
+# Raleigh publishes to eSCRIBE, no key. The calendar is a POST to
+# MeetingsCalendarView.aspx/GetCalendarMeetings with calendarStartDate and
+# calendarEndDate. Each meeting's agenda is Meeting.aspx?Id=<ID>&Agenda=Agenda&lang=English,
+# an HTML page with one div per item and FileStream.ashx links for attachments.
+# Timestamps carry seconds. raleighnc.gov itself blocks scripts; don't fetch it.
 [[body]]
 name = "Raleigh City Council"
 source = "escribe"
 site = "https://pub-raleighnc.escribemeetings.com"
 match = "City Council Meeting"
 
+# Wake County publishes to the Legistar Web API, no key:
+# https://webapi.legistar.com/v1/wake/events?$filter=EventDate ge datetime'YYYY-MM-DD'
+# then events/<id>/eventitems?AgendaNote=1&Attachments=1. Attachments are docx and pdf.
 [[body]]
 name = "Wake County Board of Commissioners"
 source = "legistar"
 client = "wake"
 match = "Board of Commissioners"
 
-# The city's open-data rezoning layer. The model may look a case up here when an
-# agenda item names one.
+# The city's open-data rezoning layer (ArcGIS). Ask for geometry and compute the
+# distance from home yourself; the server-side buffer wasn't trustworthy.
 [cases]
 service = "https://services.arcgis.com/v400IkDOw1ad7Yad/ArcGIS/rest/services/Rezoning_Case_Boundaries_View/FeatureServer/0"
+
+# How the errand runs. The reader is Claude Code in print mode (`claude -p`) with
+# --permission-mode default, so this machine's own permission mode can't loosen the
+# leash, and --allowedTools naming only the errand commands. One agenda is eighty
+# items, so the listing must stay compact or the model won't see all of it.

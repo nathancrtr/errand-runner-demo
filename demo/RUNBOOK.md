@@ -6,6 +6,7 @@ clone so the tagged repo stays pristine:
 ```sh
 git clone ~/repos/errand-runner-demo ~/demo/errand-runner-demo && cd ~/demo/errand-runner-demo
 git checkout -b live stage-0                 # ERRAND.md, PROFILE.md, watch.toml are already there
+git checkout main -- watch.toml && git commit -qm "Stage 0: where things are published"   # the builder's crumbs
 uv venv && uv pip install requests pypdf     # so the venv exists before the room watches
 cp ~/repos/errand-runner-demo/.env .env      # HOME_LAT and HOME_LON, nothing else
 ```
@@ -74,52 +75,45 @@ there. A good run says "couldn't open it" and moves on. Watch that it does.
 
 ## Prompts to type
 
-Type these more or less verbatim. They're written so a non-engineer can follow what is
-being asked.
+Type these more or less verbatim. They are in plain words on purpose: the point for the
+room is that the person asking never had to know what an API is. The crumbs a builder
+needs, where each agenda is published and which flag pins the leash, are comments in
+`watch.toml`, which the first prompt tells the model to read. Say that out loud: the
+plumbing is written down in the config file, and it is still not code.
 
 **Prompt 1 (stage 1: the tools)**
 
-> Read ERRAND.md and watch.toml. Build a small Python command-line tool called
-> `errand` with three read-only commands that print JSON. `errand meetings` lists the
-> meetings in the next `days_ahead` days for each body in watch.toml, with every agenda
-> item's title and attachment links. Raleigh City Council is on eSCRIBE: POST to
-> MeetingsCalendarView.aspx/GetCalendarMeetings for the calendar, then read each
-> meeting's Agenda HTML page. Wake County is on the Legistar Web API, client `wake`:
-> events, then eventitems with Attachments=1. Print the listing compactly, one line
-> per item with the start of its description, because a model will read it and one
-> agenda is eighty items; add `errand item <meeting-id> <number>` for one item in full
-> with its attachment links. `errand read <url>` prints a web page, PDF, or docx as
-> plain text, trimmed to a few thousand words. `errand cases` lists
-> rezoning cases from the open-data layer in watch.toml that are within `radius_km` of
-> HOME_LAT and HOME_LON in .env, with the distance computed here, not by the server.
-> Cache every download under data/cache so a second run works offline. Keep it under
-> 250 lines, plain `requests` plus `pypdf`, no framework. Use uv and a pyproject with
-> an `errand` script.
+> Read ERRAND.md. Before anything reads the agendas for me, I want a few small commands
+> I can run myself, so I can see what it sees. One lists the upcoming meetings and
+> what's on each agenda. One shows a single agenda item in full. One opens an attachment
+> or a web page as plain text. One lists rezoning cases near my home. watch.toml says
+> which meetings I follow and where they're published; my home is in .env. Keep the
+> agenda listing short enough to read in one sitting, and save everything you download
+> so a second run doesn't need the internet. Call the tool `errand`, keep it small and
+> plain, and Python is fine.
 
 **Prompt 2 (stage 2: the policy)**
 
-> Now make the errand real, but read-only. Add `errand run`: build a prompt from
-> ERRAND.md, PROFILE.md, and watch.toml and run it through `claude -p` with
-> `--permission-mode default` and `--allowedTools` limited to `Bash(errand meetings*)`,
-> `Bash(errand item*)`, `Bash(errand read*)`, and `Bash(errand cases*)`. The policy in
-> the prompt: call `errand meetings` once; for
-> each item decide whether it could be about my neighborhood; open an attachment or
-> look up a case only when the title isn't enough; and finish with a short digest: the
-> meetings that matter, one line each on why, then a "what I checked and skipped" list.
-> Print the digest and save it to data/last-digest.md. Save the model's tool calls to
-> data/last-trace.txt so I can see what it chose to open.
+> Now do the errand itself. Add `errand run`: it hands those commands to Claude, along
+> with ERRAND.md and PROFILE.md, and lets it read the agendas the way I would: skim the
+> list, open an item only when the title isn't enough, look up a case only when it has
+> to. It may use those commands and nothing else on my computer. When it's done, print
+> a short digest: the meetings that matter, one line each on why, then what it checked
+> and what it skipped. Save the digest, and keep a record of what it chose to open so I
+> can see it.
 
 **Prompt 3 (stage 3: the leash and the clock)**
 
-> Two more things. First, add `errand calendar add`: it appends an event to
-> data/council.ics with a stable UID built from the meeting, the meeting's start time
-> and place, and the why-line as the description, and does nothing if that UID is
-> already in the file. Allow it in `errand run`, and add to the policy: add only the
-> meetings that matter, never remove or edit anything. Second, schedule it: a launchd
-> plist and an install script so this runs every Friday at 7:45 and logs to data/.
+> Two more things. First, let it put meetings on my calendar, but only one way: it may
+> add a meeting to a calendar file I can open on my Mac, with the why-line in the
+> description, and it must never remove or change anything. Adding the same meeting
+> twice should do nothing. Second, make this happen on its own every Friday morning at
+> 7:45, and keep a log.
 
 ## What to say when it's slow
 
+- Nobody had to write a spec. The three prompts are the errand said three times, each
+  time asking for a little more. The technical crumbs went in the config file.
 - Build-time AI wrote the tools and is gone. Run-time AI reads the agenda every Friday
   and decides what to open. Both are in this room; only the second is "agentic".
 - The leash has three parts and all of them are readable: the allowed-tools list, the

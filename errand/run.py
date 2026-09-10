@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 TOOLS = ["Bash(errand meetings*)", "Bash(errand item*)", "Bash(errand read*)", "Bash(errand cases*)"]
+WRITER = "Bash(errand calendar add*)"
 
 POLICY = """You are running an errand for one person. The errand and the person are described
 below. Do the errand and write the digest; nothing else.
@@ -39,6 +40,7 @@ Policy:
    What you opened, and the items you considered but set aside, each with the reason in
    a few words.
    If nothing near home is on any agenda, say so in one line and stop.
+{write_step}
 
 THE ERRAND:
 {errand}
@@ -50,17 +52,26 @@ WATCHING: {bodies}, {days} days ahead, "neighborhood" means within {radius} km o
 """
 
 
-def run(watch: dict, timeout: int = 900) -> None:
+WRITE_STEP = """6. Before the digest, for each meeting that matters, call `errand calendar add` once:
+   --uid <body-slug>-<meeting-id>, --start and --end (two hours after start) as ISO
+   times, --summary "<body>: <why, in a few words>", --location as given, and
+   --description with the why-lines. Add only meetings that matter. Never remove or
+   edit anything; there is no tool for that. The tool says "already there" when the
+   event exists, and that is fine."""
+
+
+def run(watch: dict, timeout: int = 900, write: bool = False) -> None:
     if not shutil.which("claude"):
         raise SystemExit("the claude CLI is not installed; the errand needs it to read agendas")
     prompt = POLICY.format(
         errand=Path("ERRAND.md").read_text(), profile=Path("PROFILE.md").read_text(),
         bodies=", ".join(b["name"] for b in watch["body"]),
-        days=watch.get("days_ahead", 14), radius=watch.get("radius_km", 1.5))
+        days=watch.get("days_ahead", 14), radius=watch.get("radius_km", 1.5),
+        write_step=WRITE_STEP if write else "")
     env = {k: v for k, v in os.environ.items() if not k.startswith("CLAUDE")}
     env["PATH"] = f"{Path(sys.executable).parent}:{env.get('PATH', '')}"
     cmd = ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-           "--max-turns", "40", "--allowedTools", *TOOLS]
+           "--max-turns", "40", "--allowedTools", *TOOLS, *([WRITER] if write else [])]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
     trace, digest = [], ""
     for line in proc.stdout:

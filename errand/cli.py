@@ -38,7 +38,14 @@ def main(argv: list[str] | None = None) -> None:
     i = sub.add_parser("item", help="one agenda item in full: description and attachment links")
     i.add_argument("meeting_id")
     i.add_argument("number")
-    sub.add_parser("run", help="the errand itself: a model reads the agendas with these tools")
+    ru = sub.add_parser("run", help="the errand itself: a model reads the agendas with these tools")
+    ru.add_argument("--dry-run", action="store_true", help="read only; the model may not touch the calendar")
+    cal = sub.add_parser("calendar", help="the .ics file the errand writes to")
+    calsub = cal.add_subparsers(dest="calcmd", required=True)
+    ca = calsub.add_parser("add", help="one event, skipped if its UID is already there")
+    for f in ("uid", "start", "end", "summary", "location", "description"):
+        ca.add_argument(f"--{f}", required=f != "location", default="")
+    calsub.add_parser("list", help="the events in the file")
     r = sub.add_parser("read", help="a page, PDF, or docx as plain text")
     r.add_argument("url")
     r.add_argument("--words", type=int, default=3000)
@@ -65,7 +72,11 @@ def run(a: argparse.Namespace, watch: dict) -> None:
         print(read(a.url, a.words))
     elif a.cmd == "run":
         from .run import run as run_errand
-        run_errand(watch)
+        run_errand(watch, write=not a.dry_run)
+    elif a.cmd == "calendar":
+        from . import calendar
+        print(calendar.add(a.uid, a.start, a.end, a.summary, a.location, a.description)
+              if a.calcmd == "add" else calendar.listing())
     elif a.cmd == "cases":
         from .cases import cases
         json.dump(cases(watch, home(), a.radius, a.status), sys.stdout, indent=1)

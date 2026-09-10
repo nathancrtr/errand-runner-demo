@@ -1,7 +1,8 @@
 # The errand
 
-Every **morning**, I check **SAM.gov** looking for **new contract postings from
-HHS or CMS under NAICS 541512, 541511, or 518210**, and wish something would just
-tell me when **a new one appears**.
+Every **Friday**, I check **what the City Council and the county board will take up
+next week**, looking for **anything about my neighborhood**, and wish something would
+just **read the agendas for me and put the meetings that matter on my calendar, with a
+line on why**.
 
 That is the whole specification.

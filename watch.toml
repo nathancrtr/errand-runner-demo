@@ -1,0 +1,22 @@
+# Which meetings to read, and how far "my neighborhood" reaches. Plain data, not code.
+# The exact spot is HOME_LAT and HOME_LON in .env, which stays out of the repo.
+
+days_ahead = 14
+radius_km = 1.5
+
+[[body]]
+name = "Raleigh City Council"
+source = "escribe"
+site = "https://pub-raleighnc.escribemeetings.com"
+match = "City Council Meeting"
+
+[[body]]
+name = "Wake County Board of Commissioners"
+source = "legistar"
+client = "wake"
+match = "Board of Commissioners"
+
+# The city's open-data rezoning layer. The model may look a case up here when an
+# agenda item names one.
+[cases]
+service = "https://services.arcgis.com/v400IkDOw1ad7Yad/ArcGIS/rest/services/Rezoning_Case_Boundaries_View/FeatureServer/0"

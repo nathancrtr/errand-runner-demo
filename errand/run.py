@@ -70,8 +70,10 @@ def run(watch: dict, timeout: int = 900, write: bool = False) -> None:
         write_step=WRITE_STEP if write else "")
     env = {k: v for k, v in os.environ.items() if not k.startswith("CLAUDE")}
     env["PATH"] = f"{Path(sys.executable).parent}:{env.get('PATH', '')}"
+    # --permission-mode default: without it the machine's own mode applies, and in
+    # "auto" mode a classifier waves through writes the allowed-tools list never named.
     cmd = ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-           "--max-turns", "40", "--allowedTools", *TOOLS, *([WRITER] if write else [])]
+           "--permission-mode", "default", "--max-turns", "40", "--allowedTools", *TOOLS, *([WRITER] if write else [])]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
     trace, digest = [], ""
     for line in proc.stdout:

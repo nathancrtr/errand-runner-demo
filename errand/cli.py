@@ -34,6 +34,11 @@ def main(argv: list[str] | None = None) -> None:
     sub = p.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("meetings", help="upcoming meetings with agenda items and attachments")
     m.add_argument("--days", type=int, default=None, help="look-ahead window; default from watch.toml")
+    m.add_argument("--json", action="store_true", help="everything, as JSON; default is one line per item")
+    i = sub.add_parser("item", help="one agenda item in full: description and attachment links")
+    i.add_argument("meeting_id")
+    i.add_argument("number")
+    sub.add_parser("run", help="the errand itself: a model reads the agendas with these tools")
     r = sub.add_parser("read", help="a page, PDF, or docx as plain text")
     r.add_argument("url")
     r.add_argument("--words", type=int, default=3000)
@@ -49,11 +54,18 @@ def main(argv: list[str] | None = None) -> None:
 
 def run(a: argparse.Namespace, watch: dict) -> None:
     if a.cmd == "meetings":
-        from .meetings import meetings
-        json.dump(meetings(watch, a.days), sys.stdout, indent=1)
+        from .meetings import listing, meetings
+        ms = meetings(watch, a.days)
+        json.dump(ms, sys.stdout, indent=1) if a.json else print(listing(ms), end="")
+    elif a.cmd == "item":
+        from .meetings import item, meetings
+        print(item(meetings(watch), a.meeting_id, a.number), end="")
     elif a.cmd == "read":
         from .read import read
         print(read(a.url, a.words))
+    elif a.cmd == "run":
+        from .run import run as run_errand
+        run_errand(watch)
     elif a.cmd == "cases":
         from .cases import cases
         json.dump(cases(watch, home(), a.radius, a.status), sys.stdout, indent=1)

@@ -90,3 +90,28 @@ def meetings(watch: dict, days: int | None = None) -> list[dict]:
     for body in watch["body"]:
         out += {"escribe": escribe, "legistar": legistar}[body["source"]](body, start, end)
     return sorted(out, key=lambda m: m["start"])
+
+
+def listing(ms: list[dict]) -> str:
+    """One line per item: what a reader needs to decide whether to look closer."""
+    out = []
+    for m in ms:
+        out.append(f"# {m['body']} | {m['title']} | {m['start'][:16]} | {m['location']} | id={m['id']}")
+        for it in m["items"]:
+            desc = f" — {it['description'][:110]}" if it["description"] else ""
+            att = f" [{len(it['attachments'])} att]" if it["attachments"] else ""
+            out.append(f"{it['number']} {it['title']}{desc}{att}")
+        if not m["items"]:
+            out.append("(no agenda posted yet)")
+    return "\n".join(out)
+
+
+def item(ms: list[dict], meeting_id: str, number: str) -> str:
+    for m in ms:
+        if m["id"] == meeting_id:
+            for it in m["items"]:
+                if it["number"].rstrip(".") == number.rstrip("."):
+                    atts = "\n".join(f"- {a['name']}: {a['url']}" for a in it["attachments"]) or "(none)"
+                    return f"{it['number']} {it['title']}\n\n{it['description']}\n\nAttachments:\n{atts}"
+            raise SystemExit(f"no item {number} in meeting {meeting_id}")
+    raise SystemExit(f"no meeting with id {meeting_id}")

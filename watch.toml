@@ -46,6 +46,10 @@ status = "In Process"
 # --permission-mode default, so this machine's own permission mode can't loosen the
 # leash, and --allowedTools naming only the errand commands. One agenda is eighty
 # items, so the listing must stay compact or the model won't see all of it.
+# --allowedTools alone is not a leash: default mode still lets read-only commands (ls,
+# cat) and the Read tool through. Also pass --tools Bash, --setting-sources "",
+# --strict-mcp-config, and via --settings a PreToolUse hook that refuses any command but
+# one errand command with no shell syntax. Test it once, briefly: ask it to `cat .env`.
 #
 # The commands are `errand meetings`, `errand item`, `errand read`, `errand cases`.
 # The tool is one file, about 200 lines, with one way to do each thing.

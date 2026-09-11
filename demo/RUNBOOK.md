@@ -132,15 +132,16 @@ it thinks and writes, not by the network. That stretch is the time to use these.
   time asking for a little more. The technical crumbs went in the config file.
 - Build-time AI wrote the tools and is gone. Run-time AI reads the agenda every Friday
   and decides what to open. Both are in this room; only the second is "agentic".
-- The leash has three parts and all of them are readable: the allowed-tools list, the
-  paragraph in PROFILE.md, and "add only, never remove" in the policy.
+- The leash has three parts and all of them are readable: the allowed-tools list and
+  the hook that enforces it, the paragraph in PROFILE.md, and "add only, never remove" in the policy.
 - The trace is the point. Run it twice with two neighborhoods and the tool calls differ.
 - Two sources, two vendors, no keys. Legistar covers hundreds of cities; eSCRIBE covers
   hundreds more. Most people in the room can swap in their own city in one block.
-- If someone asks whether the leash is real: `errand run` is a nested Claude Code with
-  four allowed command prefixes. In rehearsal it was asked to `touch` a file and was
-  blocked; `errand cases; touch x` was blocked as a whole. Harmless glue like `echo` and
-  `| head` passes. That is the rule, and it is checkable.
+- If someone asks whether the leash is real: `errand run` is a nested Claude Code whose
+  only tool is Bash, with a hook that refuses any command that isn't one `errand`
+  command. In the live rehearsal the builder asked it to run `ls ~`, `cat .env` and
+  `errand cases && cat .env`, and the hook refused all three. That is the rule, and it
+  is checkable.
 
 ## What went wrong last time (2026-09-10 rehearsal)
 
@@ -148,8 +149,11 @@ Name one of these when the room asks.
 
 - **The leash was loose until it wasn't.** With only `--allowedTools`, the nested model
   inherited this machine's "auto" permission mode and a classifier approved a `touch`
-  the list never named. `--permission-mode default` closed it. That flag is now in
-  Prompt 2 and in the code.
+  the list never named. `--permission-mode default` closed that, but not all the way:
+  default mode still lets read-only commands (`ls`, `cat`) and the Read tool through
+  without asking, so the nested model could read `.env`. The live build found this by
+  testing, and closed it with `--tools Bash` and a PreToolUse hook. The recipe is now in
+  watch.toml. The stage-2 and stage-3 tags still have the looser leash.
 - **The first `errand meetings` printed everything as JSON,** over 100 KB for one
   agenda, which is more than a nested model gets to see from one command. Compact
   listing plus `errand item` fixed it.

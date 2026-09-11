@@ -10,11 +10,13 @@ Open this file somewhere the audience can't see it.
 - [ ] Fresh demo clone, made with the block below. Move any earlier clone aside first.
 - [ ] Fallback terminal on its own clone, so this repo (runbook, slides) stays on main:
       `git clone ~/repos/errand-runner-demo ~/demo/fallback && cd ~/demo/fallback && git checkout stage-3`,
-      `uv venv && uv pip install -e . && cp ~/repos/errand-runner-demo/.env .`, then
+      `uv venv && uv pip install --python .venv/bin/python -e . && cp ~/repos/errand-runner-demo/.env .`, then
       `.venv/bin/errand run --dry-run` to warm the cache; leave it scrolled to the top.
 - [ ] Slides open from `~/repos/errand-runner-demo/demo/slides.html`, one keystroke from
       the terminal. Terminal font big enough for the back row.
 - [ ] `claude` is logged in, the Wi-Fi works, notifications are off.
+- [ ] The demo terminal has no venv active: `echo $VIRTUAL_ENV` prints nothing (else
+      `deactivate`). An active one sends `uv pip install` to the wrong venv.
 - [ ] A screen recording of a full run-through exists, as the last resort.
 
 The demo happens in a separate clone so the tagged repo stays pristine:
@@ -25,7 +27,7 @@ launchctl bootout gui/$(id -u)/com.nathancarter.errand 2>/dev/null; rm -f ~/Libr
 git clone ~/repos/errand-runner-demo ~/demo/errand-runner-demo && cd ~/demo/errand-runner-demo
 git checkout -b live stage-0                 # ERRAND.md, PROFILE.md, watch.toml are already there
 git checkout main -- watch.toml && git commit -qm "Stage 0: where things are published"   # the builder's crumbs
-uv venv && uv pip install requests pypdf     # so the venv exists before the room watches
+uv venv && uv pip install --python .venv/bin/python requests pypdf   # so the venv exists before the room watches
 cp ~/repos/errand-runner-demo/.env .env      # HOME_LAT and HOME_LON, nothing else
 ```
 

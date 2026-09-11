@@ -90,13 +90,17 @@ plumbing is written down in the config file, and it is still not code.
 **Prompt 1 (stage 1: the tools)**
 
 > Read ERRAND.md. Before anything reads the agendas for me, I want a few small commands
-> I can run myself, so I can see what it sees. One lists the upcoming meetings and
-> what's on each agenda. One shows a single agenda item in full. One opens an attachment
-> or a web page as plain text. One lists rezoning cases near my home. watch.toml says
-> which meetings I follow and where they're published; my home is in .env. Keep the
-> agenda listing short enough to read in one sitting, and save everything you download
-> so a second run doesn't need the internet. Call the tool `errand`, keep it small and
-> plain, and Python is fine.
+> I can run myself, so I can see what it sees. They should let me do the following and
+> no more for now:
+>
+> - List the upcoming meetings and what's on each agenda
+> - Show a single agenda item in full
+> - Open an attachment or a web page as plain text
+> - List rezoning cases near my home
+>
+> My details are in `watch.toml` and `.env`. Keep the agenda listing short enough to read
+> in one sitting, and save everything you download so a second run doesn't need the
+> internet. Call the tool `errand`, keep it small and plain, and Python is fine.
 
 **Prompt 2 (stage 2: the policy)**
 

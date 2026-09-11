@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Errand runner: slides</title>
+<!-- Raleway is the company heading face. Offline, headings fall back to Helvetica Neue. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Palette from e14s.com: its dark accent, its pale blue, its card border. */
+  :root {
+    --blue: #0e489f;
+    --blue-deep: #0a3576;
+    --pale: #e6ecf5;
+    --paler: #f0f5fe;
+    --ink: #1a1f29;
+    --muted: #4a5464;
+    --paper: #ffffff;
+    --head: "Raleway", "Helvetica Neue", Arial, sans-serif;
+    --body: "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ink); overflow: hidden; }
+  body { font-family: var(--body); color: var(--ink); }
+
+  /* A fixed 1600x900 stage, scaled to fit the window. */
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1600px; height: 900px;
+    transform-origin: center center;
+    background: var(--paper);
+  }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 110px 130px 90px;
+    display: none; flex-direction: column;
+  }
+  .slide.active { display: flex; }
+
+  .label {
+    position: absolute; top: 44px; left: 130px;
+    font-family: var(--head); font-weight: 700; font-size: 22px;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--blue);
+  }
+  h1, h2 { font-family: var(--head); font-weight: 800; color: var(--blue); margin: 0; letter-spacing: -.01em; }
+  h2 { font-size: 72px; line-height: 1.08; margin-bottom: 48px; }
+  h2 .sub { display: block; font-weight: 500; font-size: 44px; color: var(--muted); margin-top: 14px; }
+  p, li { font-size: 36px; line-height: 1.4; margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 30px; }
+  li { padding-left: 42px; position: relative; }
+  li::before {
+    content: ""; position: absolute; left: 0; top: .52em;
+    width: 16px; height: 16px; background: var(--blue);
+  }
+  code { font-family: var(--mono); font-size: .88em; background: var(--pale); padding: 2px 10px; border-radius: 6px; }
+  .foot { margin-top: auto; font-size: 32px; color: var(--muted); }
+  .foot strong { color: var(--ink); }
+
+  /* Title slide */
+  .slide.title { background: var(--blue); color: #fff; justify-content: center; }
+  .slide.title h1 { color: #fff; font-size: 128px; line-height: 1; margin-bottom: 56px; }
+  .slide.title blockquote {
+    margin: 0; max-width: 1180px; font-size: 40px; line-height: 1.45;
+    border-left: 8px solid var(--pale); padding-left: 36px; color: var(--pale);
+  }
+  .slide.title blockquote cite { display: block; margin-top: 18px; font-style: normal; font-family: var(--mono); font-size: 26px; opacity: .8; }
+  .slide.title .who { position: absolute; bottom: 70px; left: 130px; font-family: var(--head); font-weight: 700; font-size: 28px; color: var(--pale); }
+
+  /* Two columns */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .card { background: var(--paler); border: 2px solid var(--pale); border-radius: 10px; padding: 40px 44px; }
+  .card h3 { font-family: var(--head); font-weight: 800; font-size: 44px; color: var(--blue); margin: 0 0 8px; }
+  .card .when { font-family: var(--mono); font-size: 24px; color: var(--muted); margin-bottom: 26px; }
+  .card p { font-size: 32px; }
+  .card p + p { margin-top: 18px; }
+
+  /* Diagram */
+  .diagram { width: 100%; height: auto; margin-top: -10px; }
+  .diagram text { font-family: var(--body); fill: var(--ink); }
+  .diagram .h { font-family: var(--head); font-weight: 800; fill: var(--blue); }
+  .diagram .m { font-family: var(--mono); fill: var(--muted); }
+  .diagram .on-blue { fill: #fff; }
+  .diagram .on-blue.small { fill: var(--pale); }
+
+  /* Progress */
+  #bar { position: absolute; left: 0; bottom: 0; height: 8px; background: var(--blue); transition: width .25s ease; }
+  #count { position: absolute; right: 50px; bottom: 26px; font-family: var(--head); font-weight: 700; font-size: 20px; color: var(--muted); }
+  .title-active #count { color: var(--pale); }
+  .title-active #bar { background: var(--pale); }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 -->
+  <section class="slide title">
+    <h1>Errand runner</h1>
+    <blockquote>
+      Every Friday, I check what the City Council and the county board will take up next
+      week, looking for anything about my neighborhood, and wish something would just read
+      the agendas for me and put the meetings that matter on my calendar.
+      <cite>ERRAND.md, the whole specification</cite>
+    </blockquote>
+    <div class="who">Nathan Carter</div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide">
+    <div class="label">Prompt 1 &middot; the tools</div>
+    <h2>Two AIs in this room</h2>
+    <div class="cols">
+      <div class="card">
+        <h3>Build time</h3>
+        <div class="when">today, while we watch</div>
+        <p>The one I'm typing to. It writes a small program, I read what it wrote, and then it's finished.</p>
+      </div>
+      <div class="card">
+        <h3>Run time</h3>
+        <div class="when">Fridays at 7:45, nobody watching</div>
+        <p>The one that the program calls. It decides which agenda items to open and leaves a record of what it did.</p>
+      </div>
+    </div>
+    <p class="foot">Only the second one runs without me - that's the one people mean by <strong>"agentic."</strong></p>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide">
+    <div class="label">Prompt 1 &middot; the tools</div>
+    <h2>What an agent is</h2>
+    <svg class="diagram" viewBox="0 0 1340 470" role="img" aria-label="A loop: the model picks a command, the program runs it, the result goes back to the model, until it has enough to write the digest.">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#0e489f"/>
+        </marker>
+      </defs>
+      <!-- input -->
+      <rect x="0" y="150" width="250" height="120" rx="10" fill="#f0f5fe" stroke="#e6ecf5" stroke-width="2"/>
+      <text class="m" x="125" y="202" text-anchor="middle" font-size="24">ERRAND.md</text>
+      <text class="m" x="125" y="238" text-anchor="middle" font-size="24">PROFILE.md</text>
+      <line x1="250" y1="210" x2="362" y2="210" stroke="#0e489f" stroke-width="4" marker-end="url(#ah)"/>
+      <!-- model -->
+      <rect x="370" y="110" width="320" height="200" rx="10" fill="#0e489f"/>
+      <text class="h on-blue" x="530" y="198" text-anchor="middle" font-size="44">Model</text>
+      <text class="on-blue small" x="530" y="246" text-anchor="middle" font-size="26">picks the next step</text>
+      <!-- program -->
+      <rect x="1000" y="110" width="340" height="200" rx="10" fill="#f0f5fe" stroke="#0e489f" stroke-width="3"/>
+      <text class="h" x="1170" y="198" text-anchor="middle" font-size="44">Program</text>
+      <text x="1170" y="246" text-anchor="middle" font-size="26">runs one command</text>
+      <!-- action / result -->
+      <line x1="690" y1="160" x2="992" y2="160" stroke="#0e489f" stroke-width="4" marker-end="url(#ah)"/>
+      <text class="m" x="845" y="140" text-anchor="middle" font-size="24">errand item F.2</text>
+      <line x1="1000" y1="260" x2="698" y2="260" stroke="#0e489f" stroke-width="4" marker-end="url(#ah)"/>
+      <text class="m" x="845" y="296" text-anchor="middle" font-size="24">the item's text</text>
+      <!-- exit -->
+      <line x1="530" y1="310" x2="530" y2="372" stroke="#0e489f" stroke-width="4" marker-end="url(#ah)"/>
+      <text class="m" x="552" y="350" font-size="24">when it has enough</text>
+      <rect x="380" y="380" width="300" height="84" rx="10" fill="#f0f5fe" stroke="#e6ecf5" stroke-width="2"/>
+      <text class="h" x="530" y="432" text-anchor="middle" font-size="30">Digest</text>
+    </svg>
+    <p class="foot">An agent is a model with a short list of commands it may run, called in a loop. On a typical Friday this one goes around <strong>six to a dozen times.</strong></p>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide">
+    <div class="label">Prompt 1 &middot; the tools</div>
+    <h2>It only knows what you hand it</h2>
+    <ul>
+      <li>It hasn't seen my city's website and doesn't know what I care about unless a file tells it. Where the agendas are published is written in <code>watch.toml</code>. What matters to me is a paragraph in <code>PROFILE.md</code>.</li>
+      <li>Too much hurts as well. The first version handed it 100 KB of agenda from one command, more than it gets to see at once. A short listing and a way to open one item fixed that.</li>
+    </ul>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide">
+    <div class="label">Prompt 2 &middot; the policy</div>
+    <h2>Not too much model</h2>
+    <ul>
+      <li>Use the best model for the job, then turn it down where you can. More thinking means a longer wait and a bigger bill, and past some point the answer stops getting better.</li>
+      <li>I started this session at medium effort on purpose. The quiet stretch in Prompt 1 was the model planning; how long that takes depends on how hard I ask it to think.</li>
+    </ul>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide">
+    <div class="label">Prompt 2 &middot; the policy</div>
+    <h2>Help the model make itself obsolete</h2>
+    <ul>
+      <li>If a step should come out the same every time, ask the model to write it as code.</li>
+      <li>Fetching agendas, reading PDFs, measuring distance from home, and writing the calendar file are all plain Python. The model wrote it once, and it costs nothing to run.</li>
+      <li>What's left for the model on Friday is the part that takes judgment. Which of 83 agenda items matter to me?</li>
+    </ul>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide">
+    <div class="label">Prompt 2 &middot; the policy</div>
+    <h2>When all you have is an LLM...<span class="sub">...everything looks like a nail.</span></h2>
+    <ul>
+      <li>Give a frontier model enough time and money and it can do nearly anything, but that doesn't mean it should.</li>
+      <li>Adding the same meeting to the calendar twice does nothing. Code checks an ID in the calendar file, so the model doesn't have to remember what it added last week.</li>
+    </ul>
+    <p class="foot"><strong>If it has to be right every time, it should be code.</strong></p>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide">
+    <div class="label">Prompt 3 &middot; the leash and the clock</div>
+    <h2>Rules that must hold belong in code</h2>
+    <ul>
+      <li><code>PROFILE.md</code> asks the model to care about my neighborhood. Asking works most of the time, and for matters of taste that's good enough.</li>
+      <li>In rehearsal, the run-time model had permission to run four commands, and it could still have read other files on my computer, including the one with my home coordinates.</li>
+      <li>The fix was a few lines of code that refuse any command other than the errand's own. When I tested it by asking it to list my home folder or read that file, the check refused.</li>
+    </ul>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide">
+    <div class="label">Prompt 3 &middot; the leash and the clock</div>
+    <h2>Say what done looks like, then check</h2>
+    <ul>
+      <li>The specification for this project is one sentence. The prompts are that sentence said three times, asking for a little more each time.</li>
+      <li>I don't read every line it writes. I run it and look at what it did, starting with which agenda items it opened and which it skipped.</li>
+      <li>Worth checking: did it find the real data source or make one up? When a page is blocked, does it say so and move on?</li>
+    </ul>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="label">Prompt 3 &middot; the leash and the clock</div>
+    <h2>Find your own errand</h2>
+    <ul>
+      <li>Something you check by hand every week.</li>
+      <li>A public place where the information shows up.</li>
+      <li>A paragraph about what matters to you.</li>
+      <li>A place you'd like to hear about it, like your calendar or your inbox.</li>
+    </ul>
+    <p class="foot">Raleigh and Wake County publish through two vendors that serve hundreds of other cities - yours may be one block of config away!</p>
+  </section>
+
+  <div id="bar"></div>
+  <div id="count"></div>
+</div>
+
+<script>
+  // Arrows, space, Page Up/Down (most clickers), Home/End. F toggles full screen.
+  // The slide number lives in the URL hash, so a reload keeps your place.
+  const stage = document.getElementById('stage');
+  const slides = [...document.querySelectorAll('.slide')];
+  const bar = document.getElementById('bar');
+  const count = document.getElementById('count');
+  let i = 0;
+
+  function fit() {
+    const s = Math.min(innerWidth / 1600, innerHeight / 900);
+    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  }
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((el, k) => el.classList.toggle('active', k === i));
+    stage.classList.toggle('title-active', slides[i].classList.contains('title'));
+    bar.style.width = `${((i + 1) / slides.length) * 100}%`;
+    count.textContent = `${i + 1} / ${slides.length}`;
+    history.replaceState(null, '', `#${i + 1}`);
+  }
+
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'f' || e.key === 'F') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  addEventListener('resize', fit);
+
+  fit();
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>

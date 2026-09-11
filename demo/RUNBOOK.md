@@ -8,11 +8,12 @@ Open this file somewhere the audience can't see it.
       "What's there right now" is stale: run `errand meetings` in the fallback terminal
       and re-pick the two items to expect.
 - [ ] Fresh demo clone, made with the block below. Move any earlier clone aside first.
-- [ ] Fallback terminal: `cd ~/repos/errand-runner-demo && git pull --ff-only && git checkout stage-3 && uv pip install -e .`,
-      then `errand run --dry-run` to warm the cache and leave it scrolled to the top.
-- [ ] `cp ~/repos/errand-runner-demo/demo/slides.html ~/demo/` and open that copy, one
-      keystroke from the terminal. (The fallback's tag checkout can remove the repo's copy.)
-      Terminal font big enough for the back row.
+- [ ] Fallback terminal on its own clone, so this repo (runbook, slides) stays on main:
+      `git clone ~/repos/errand-runner-demo ~/demo/fallback && cd ~/demo/fallback && git checkout stage-3`,
+      `uv venv && uv pip install -e . && cp ~/repos/errand-runner-demo/.env .`, then
+      `.venv/bin/errand run --dry-run` to warm the cache; leave it scrolled to the top.
+- [ ] Slides open from `~/repos/errand-runner-demo/demo/slides.html`, one keystroke from
+      the terminal. Terminal font big enough for the back row.
 - [ ] `claude` is logged in, the Wi-Fi works, notifications are off.
 - [ ] A screen recording of a full run-through exists, as the last resort.
 
@@ -47,9 +48,8 @@ git stash -u && git checkout stage-1    # or stage-2, stage-3
 uv pip install -e .
 ```
 
-Keep a second terminal on `~/repos/errand-runner-demo` with stage-3 installed, `.env`
-filled, and an `errand run --dry-run` already scrolled to the top of the screen (see the
-checklist).
+Keep a second terminal on `~/demo/fallback` with stage-3 installed, `.env` filled, and
+an `errand run --dry-run` already scrolled to the top of the screen (see the checklist).
 
 There is no fixture; the model chooses what to read, so a canned response would be a
 lie. Instead, stage 1 caches every download under `data/cache/`, and a run with a warm

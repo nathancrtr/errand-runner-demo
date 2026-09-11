@@ -35,8 +35,11 @@ a screen capture of a full run-through tonight as the last resort.
 
 There is no fixture; the model chooses what to read, so a canned response would be a
 lie. Instead, stage 1 caches every download under `data/cache/`, and a run with a warm
-cache is offline by construction. Run the whole thing Thursday night, and on Friday the
-room's run reads the same agendas whether or not the Wi-Fi holds.
+cache is offline by construction. That holds for the second terminal only: run stage-3
+there Thursday night, and on Friday its run reads the same agendas whether or not the
+Wi-Fi holds. The live build starts with an empty cache, and the live-built tool may key
+its calendar lookup on today's date, so Prompt 1 needs the network in the room. If the
+Wi-Fi is down, go straight to the second terminal.
 
 Two sources the model may hit and cannot read: `raleighnc.gov` sits behind a Cloudflare
 challenge that blocks scripts, and the case-detail links in the open-data layer point
@@ -46,7 +49,7 @@ there. A good run says "couldn't open it" and moves on. Watch that it does.
 
 - The 2026-09-15 City Council agenda has 83 items and 190 attachments. Rehearsed
   three times; every run found the same two things: **F.2, rezoning Z-22-26 at Bragg
-  and South East Streets**, 1.24 km from home, removing a neighborhood conservation
+  and South East Streets**, 1.2 km from home, removing a neighborhood conservation
   overlay, and **D.5.d, a Complete Streets contract for Harrington, West, and Cabarrus
   Streets**, inside the Warehouse District. Every run set aside the City Hall and City
   Center parking-deck items with the reason PROFILE.md gives, and the annexations and
@@ -58,8 +61,11 @@ there. A good run says "couldn't open it" and moves on. Watch that it does.
 - The 2026-09-08 county agenda had 52 items, including an affordable-housing loan at
   450 East Davie Street, a short walk away. The county posts the next agenda a few days
   before the meeting, so check on Thursday whether there is one.
-- Open-data rezoning cases in process near the neighborhood: 767 S Saunders St, the
-  Wilmington Street assemblage, 727 W Morgan St, and Ashe Avenue.
+- Open-data rezoning cases in process within 1.5 km of the demo home point (Moore
+  Square): the Wilmington Street assemblage (1.05 km), Bragg & S East (1.21), 767 S
+  Saunders St (1.3), and 727 W Morgan St (1.48).
+- The 2026-09-15 meeting shows as 11:03 in Raleigh's calendar though its name says
+  11:30am. watch.toml says to trust the name; check the .ics time after Prompt 3.
 - The Planning Commission did not appear in the next five weeks of the eSCRIBE calendar.
   Not in scope, but have an answer if someone asks.
 

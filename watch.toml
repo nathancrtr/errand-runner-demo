@@ -11,7 +11,12 @@ radius_km = 1.5
 # MeetingsCalendarView.aspx/GetCalendarMeetings with calendarStartDate and
 # calendarEndDate. Each meeting's agenda is Meeting.aspx?Id=<ID>&Agenda=Agenda&lang=English,
 # an HTML page with one div per item and FileStream.ashx links for attachments.
-# Timestamps carry seconds. raleighnc.gov itself blocks scripts; don't fetch it.
+# Timestamps carry seconds, and StartDate can be wrong: 2026-09-15 says 11:03 for a
+# meeting named "(11:30am)". When the name gives a time, trust the name.
+# raleighnc.gov itself blocks scripts; don't fetch it.
+# In the agenda HTML each item starts at <div class="AgendaItem AgendaItem<N> "> with
+# AgendaItemCounter and AgendaItemTitle inside. After the last item comes a side panel,
+# AgendaItemSelectedDetailsContainer, that repeats every attachment; stop before it.
 [[body]]
 name = "Raleigh City Council"
 source = "escribe"
@@ -21,6 +26,7 @@ match = "City Council Meeting"
 # Wake County publishes to the Legistar Web API, no key:
 # https://webapi.legistar.com/v1/wake/events?$filter=EventDate ge datetime'YYYY-MM-DD'
 # then events/<id>/eventitems?AgendaNote=1&Attachments=1. Attachments are docx and pdf.
+# A two-week window is often empty; event 6243 (2026-09-08, 52 items) is a real one to test on.
 [[body]]
 name = "Wake County Board of Commissioners"
 source = "legistar"
@@ -28,11 +34,17 @@ client = "wake"
 match = "Board of Commissioners"
 
 # The city's open-data rezoning layer (ArcGIS). Ask for geometry and compute the
-# distance from home yourself; the server-side buffer wasn't trustworthy.
+# distance from home yourself; the server-side buffer wasn't trustworthy. Useful fields:
+# ZONE_CASE, Location, PrevZoning, ZON_REQ, STATUS, StatusDate. Ask with outSR=4326.
 [cases]
 service = "https://services.arcgis.com/v400IkDOw1ad7Yad/ArcGIS/rest/services/Rezoning_Case_Boundaries_View/FeatureServer/0"
+status = "In Process"
 
 # How the errand runs. The reader is Claude Code in print mode (`claude -p`) with
 # --permission-mode default, so this machine's own permission mode can't loosen the
 # leash, and --allowedTools naming only the errand commands. One agenda is eighty
 # items, so the listing must stay compact or the model won't see all of it.
+#
+# The commands are `errand meetings`, `errand item`, `errand read`, `errand cases`.
+# .venv already has requests and pypdf. launchd starts jobs with a bare PATH, and
+# `claude` lives in ~/.local/bin.

@@ -73,7 +73,7 @@ there. A good run says "couldn't open it" and moves on. Watch that it does.
 
 | min | stage | what the room sees | while it runs, say |
 |---|---|---|---|
-| 0-3 | 0 | `cat ERRAND.md`, `cat PROFILE.md`. Two files, plain English. Open Claude Code with `claude --effort medium`. | "The first is the job. The second is the taste. Neither is code." |
+| 0-3 | 0 | `cat ERRAND.md`, `cat PROFILE.md`. Two files, plain English. Open Claude Code from the clone: `cd ~/demo/errand-runner-demo && claude --effort medium`. Started from `~`, it searched the home folder and named the finished repos on screen. | "The first is the job. The second is the taste. Neither is code." |
 | 3-10 | 1 | Prompt 1. Model writes the read-only tools. `errand meetings \| head -40`, `errand cases`. | Did it find eSCRIBE and Legistar, or invent an API? Where's the home coordinate going? |
 | 10-18 | 2 | Prompt 2. `errand run`, about 45 seconds. The trace scrolls: which items it opened, which it skipped. Then the digest. | This is the agentic part. The tool count wasn't known until it ran. The policy that governed it is the paragraph you read at minute one. |
 | 18-23 | 3 | Prompt 3. `errand run` again, now with the writer allowed. `cat data/council.ics`, `open data/council.ics`. Run once more: the file doesn't change. | The leash: one write tool, "add only, never remove", and the file is the proof. |

@@ -153,7 +153,8 @@ Name one of these when the room asks.
   default mode still lets read-only commands (`ls`, `cat`) and the Read tool through
   without asking, so the nested model could read `.env`. The live build found this by
   testing, and closed it with `--tools Bash` and a PreToolUse hook. The recipe is now in
-  watch.toml. The stage-2 and stage-3 tags still have the looser leash.
+  watch.toml, and the stage-2 and stage-3 tags carry it too (`errand/guard.py`), so
+  the fallback terminal's leash is the same one.
 - **The first `errand meetings` printed everything as JSON,** over 100 KB for one
   agenda, which is more than a nested model gets to see from one command. Compact
   listing plus `errand item` fixed it.

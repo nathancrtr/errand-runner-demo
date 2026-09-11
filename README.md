@@ -42,10 +42,16 @@ into Calendar.app.
 
 ## The leash
 
-`errand run` is a nested Claude Code started with `--permission-mode default` and an
-allowed-tools list of four command prefixes, five when the writer is on. In rehearsal it
-was asked to `touch` a file and was blocked, and `errand cases; touch x` was blocked as
-a whole. Harmless glue like `echo` and `| head` passes. The policy is prose in
+`errand run` is a nested Claude Code whose only tool is Bash, started with
+`--permission-mode default`, an allowed-tools list of four command prefixes (five when
+the writer is on), and none of this machine's settings or MCP servers. The allowed-tools
+list alone is not enough: default mode still lets read-only commands like `ls` and
+`cat .env` through without asking. So a PreToolUse hook, [errand/guard.py](errand/guard.py),
+refuses every command that isn't one errand command with plain arguments: no pipes, no
+`&&`, no `$(...)`, no other programs. `errand read` also refuses addresses on this machine
+or network. In rehearsal the nested model was asked to run `ls ~`, `cat .env`,
+`errand cases && cat .env`, `errand read "$(cat .env)"` and `touch`, and every one was
+refused. The policy is prose in
 [errand/run.py](errand/run.py); the taste is prose in PROFILE.md; the writer is one
 command that only appends. All three are readable by someone who does not write code.
 

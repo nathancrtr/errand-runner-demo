@@ -46,5 +46,6 @@ status = "In Process"
 # items, so the listing must stay compact or the model won't see all of it.
 #
 # The commands are `errand meetings`, `errand item`, `errand read`, `errand cases`.
+# The tool is one file, about 200 lines, with one way to do each thing.
 # .venv already has requests and pypdf. launchd starts jobs with a bare PATH, and
 # `claude` lives in ~/.local/bin.

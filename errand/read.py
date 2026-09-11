@@ -5,13 +5,31 @@ from __future__ import annotations
 
 import html
 import io
+import ipaddress
 import re
+import socket
 import zipfile
+from urllib.parse import urlparse
 
 from .cache import fetch
 
 
+def public(url: str) -> bool:
+    """True for an http(s) URL whose host is on the public internet, so the model can't
+    use `errand read` to reach anything on this machine or network."""
+    u = urlparse(url)
+    if u.scheme not in ("http", "https") or not u.hostname:
+        return False
+    try:
+        return all(ipaddress.ip_address(info[4][0]).is_global
+                   for info in socket.getaddrinfo(u.hostname, None))
+    except (OSError, ValueError):
+        return False
+
+
 def read(url: str, words: int = 3000) -> str:
+    if not public(url):
+        raise SystemExit("errand read: only public http(s) addresses, nothing on this machine or network")
     data, ctype = fetch(url)
     head = data[:8]
     if head.startswith(b"%PDF"):

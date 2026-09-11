@@ -17,10 +17,11 @@ WRITER = "Bash(errand calendar add*)"
 POLICY = """You are running an errand for one person. The errand and the person are described
 below. Do the errand and write the digest; nothing else.
 
-Tools, run through Bash exactly as shown:
+Tools, run through Bash exactly as shown, one per call. Anything else is refused,
+including pipes, `&&`, `head` and every other program:
   errand meetings                          upcoming meetings, one line per agenda item
   errand item <meeting-id> <item-number>   one item in full: description and attachment links
-  errand read <url>                        an attachment or page as plain text
+  errand read '<url>'                      an attachment or page as plain text (quote the URL)
   errand cases                             rezoning cases in process near home, with distance in km
 
 Policy:
@@ -70,10 +71,17 @@ def run(watch: dict, timeout: int = 900, write: bool = False) -> None:
         write_step=WRITE_STEP if write else "")
     env = {k: v for k, v in os.environ.items() if not k.startswith("CLAUDE")}
     env["PATH"] = f"{Path(sys.executable).parent}:{env.get('PATH', '')}"
-    # --permission-mode default: without it the machine's own mode applies, and in
-    # "auto" mode a classifier waves through writes the allowed-tools list never named.
+    # The leash. --permission-mode default: without it the machine's own mode applies, and
+    # in "auto" mode a classifier waves through writes the allowed-tools list never named.
+    # Default mode still lets `ls` and `cat` through, so Bash is the only tool, this
+    # machine's settings and MCP servers are ignored, and guard.py refuses every command
+    # that isn't one errand command.
+    guard = f"'{sys.executable}' '{Path(__file__).with_name('guard.py')}'" + (" --write" if write else "")
+    hooks = {"hooks": {"PreToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": guard}]}]}}
     cmd = ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-           "--permission-mode", "default", "--max-turns", "40", "--allowedTools", *TOOLS, *([WRITER] if write else [])]
+           "--permission-mode", "default", "--tools", "Bash", "--setting-sources", "",
+           "--strict-mcp-config", "--settings", json.dumps(hooks),
+           "--max-turns", "40", "--allowedTools", *TOOLS, *([WRITER] if write else [])]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
     trace, digest = [], ""
     for line in proc.stdout:

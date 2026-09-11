@@ -71,13 +71,53 @@ there. A good run says "couldn't open it" and moves on. Watch that it does.
 
 ## Timings (25 minutes on the build)
 
-| min | stage | what the room sees | while it runs, say |
-|---|---|---|---|
-| 0-3 | 0 | `cat ERRAND.md`, `cat PROFILE.md`. Two files, plain English. Open Claude Code from the clone: `cd ~/demo/errand-runner-demo && claude --effort medium`. Started from `~`, it searched the home folder and named the finished repos on screen. | "The first is the job. The second is the taste. Neither is code." |
-| 3-10 | 1 | Prompt 1. Model writes the read-only tools. `errand meetings \| head -40`, `errand cases`. | Did it find eSCRIBE and Legistar, or invent an API? Where's the home coordinate going? |
-| 10-18 | 2 | Prompt 2. `errand run`, about 45 seconds. The trace scrolls: which items it opened, which it skipped. Then the digest. | This is the agentic part. The tool count wasn't known until it ran. The policy that governed it is the paragraph you read at minute one. |
-| 18-23 | 3 | Prompt 3. `errand run` again, now with the writer allowed. `cat data/council.ics`, `open data/council.ics`. Run once more: the file doesn't change. | The leash: one write tool, "add only, never remove", and the file is the proof. |
-| 23-25 | | Swap: someone names their neighborhood. Edit two lines of .env and one paragraph of PROFILE.md. Run again. | "Different city is one block of watch.toml, if it's on Legistar or eSCRIBE." |
+| min | stage | what the room sees | slides | while it runs, say |
+|---|---|---|---|---|
+| 0-3 | 0 | Slide 1 up as people settle; read the quote. Then `cat ERRAND.md`, `cat PROFILE.md`. Two files, plain English. Open Claude Code from the clone: `cd ~/demo/errand-runner-demo && claude --effort medium`. Started from `~`, it searched the home folder and named the finished repos on screen. | 1, then 2 just before typing Prompt 1 | "The first is the job. The second is the taste. Neither is code." Say "medium effort, on purpose" as you type the flag; slide 5 pays it off. |
+| 3-10 | 1 | Prompt 1. Model writes the read-only tools. `errand meetings \| head -40`, `errand cases`. | 3 and 4 during the quiet stretch; terminal only once output appears | Did it find eSCRIBE and Legistar, or invent an API? Where's the home coordinate going? |
+| 10-18 | 2 | Prompt 2. `errand run`, about 45 seconds. The trace scrolls: which items it opened, which it skipped. Then the digest. | 5 to 7 while it writes `run.py`; nothing during the run itself | This is the agentic part. The tool count wasn't known until it ran. The policy that governed it is the paragraph you read at minute one. "That's the loop from the diagram, going around." |
+| 18-23 | 3 | Prompt 3. `errand run` again, now with the writer allowed. `cat data/council.ics`, `open data/council.ics`. Run once more: the file doesn't change. | 8 and 9 while it writes; slide 9 ends on "then check", which is the cue to go back to the terminal | The leash: one write tool, "add only, never remove", and the file is the proof. |
+| 23-25 | | Swap: someone names their neighborhood. Edit two lines of .env and one paragraph of PROFILE.md. Run again. | 10, and leave it up through questions | "Different city is one block of watch.toml, if it's on Legistar or eSCRIBE." |
+
+## Slides and the terminal
+
+`demo/slides.html` is ten slides, labeled by prompt. Each group is what to talk over
+while that prompt's model is working. Two exceptions: slide 2 goes up *before* Prompt 1
+is typed, so the room knows which of the two AIs it is about to watch, and slide 10 is
+the close. Keys: arrows, space, Page Up/Down, F for full screen. The slide number lives
+in the URL hash, so switching to the terminal and back never loses the place. Keep
+slides and terminal as two windows one keystroke apart.
+
+| slide | title | when |
+|---|---|---|
+| 1 | Errand runner (the ERRAND.md quote) | As people settle. The `cat ERRAND.md` at minute 0 then reveals the slide was a file. |
+| 2 | Two AIs in this room | After Claude Code is open, before Prompt 1 is typed. |
+| 3 | What an agent is | Prompt 1 quiet stretch. Refer back to it by voice when `errand run` scrolls. |
+| 4 | It only knows what you hand it | Prompt 1 quiet stretch. Primes the check on `errand meetings`. |
+| 5 | Not too much model | Prompt 2 wait. Retrospective on the Prompt 1 wait, so never earlier. |
+| 6 | Help the model make itself obsolete | Prompt 2 wait. |
+| 7 | When all you have is an LLM | Prompt 2 wait. It describes calendar idempotence, which doesn't exist until Prompt 3: say "the next prompt will prove this." |
+| 8 | Rules that must hold belong in code | Prompt 3 wait. Depends on the room knowing `.env` exists (see below). |
+| 9 | Say what done looks like, then check | Prompt 3 wait, last. "Then check" is the cue for the second run and the unchanged `.ics`. |
+| 10 | Find your own errand | The swap and the close. Leave it up. |
+
+### Before opening the slides
+
+- The shape in one breath: one sentence of spec, three prompts, twenty-five minutes,
+  and the slides are what to think about while the model works.
+- Warn about silence: "When the screen stops moving, the model is thinking, and I'll
+  talk." Otherwise the first three-minute stretch reads as a failure.
+- Nothing is canned. The model chooses what to open, so today's digest may differ from
+  rehearsal. This buys the credit you need when raleighnc.gov is blocked.
+
+### Before the first prompt
+
+- Say out loud that the plumbing crumbs live in `watch.toml` and are still not code.
+  Slide 4 assumes the room already knows.
+- Name what is private: two coordinates in `.env`, a file the room will not see.
+  Slide 8 depends on the room knowing that file exists.
+- Say what a good Prompt 1 looks like before it runs: real data sources, not an invented
+  API. Then the check after `errand meetings` is a payoff, not an explanation.
 
 ## Prompts to type
 

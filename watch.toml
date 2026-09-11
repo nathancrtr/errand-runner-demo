@@ -55,4 +55,6 @@ status = "In Process"
 # The commands are `errand meetings`, `errand item`, `errand read`, `errand cases`.
 # The tool is one file, about 200 lines, with one way to do each thing.
 # .venv already has requests and pypdf. launchd starts jobs with a bare PATH, and
-# `claude` lives in ~/.local/bin.
+# `claude` lives in ~/.local/bin. The Friday job is a LaunchAgent labelled
+# com.nathancarter.errand: StartCalendarInterval, WorkingDirectory this repo, stdout and
+# stderr to data/errand.log. Fire it once with launchctl kickstart to test it.

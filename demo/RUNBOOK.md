@@ -4,6 +4,7 @@ Open this file somewhere the audience can't see it. The demo happens in a separa
 clone so the tagged repo stays pristine:
 
 ```sh
+launchctl bootout gui/$(id -u)/com.nathancarter.errand; rm -f ~/Library/LaunchAgents/com.nathancarter.errand.plist   # a rehearsal's Friday job
 git clone ~/repos/errand-runner-demo ~/demo/errand-runner-demo && cd ~/demo/errand-runner-demo
 git checkout -b live stage-0                 # ERRAND.md, PROFILE.md, watch.toml are already there
 git checkout main -- watch.toml && git commit -qm "Stage 0: where things are published"   # the builder's crumbs
@@ -76,7 +77,7 @@ there. A good run says "couldn't open it" and moves on. Watch that it does.
 | 0-3 | 0 | Slide 1 up as people settle; read the quote. Then `cat ERRAND.md`, `cat PROFILE.md`. Two files, plain English. Open Claude Code from the clone: `cd ~/demo/errand-runner-demo && claude --effort medium`. Started from `~`, it searched the home folder and named the finished repos on screen. | 1, then 2 just before typing Prompt 1 | "The first is the job. The second is the taste. Neither is code." Say "medium effort, on purpose" as you type the flag; slide 5 pays it off. |
 | 3-10 | 1 | Prompt 1. Model writes the read-only tools. `errand meetings \| head -40`, `errand cases`. | 3 and 4 during the quiet stretch; terminal only once output appears | Did it find eSCRIBE and Legistar, or invent an API? Where's the home coordinate going? |
 | 10-18 | 2 | Prompt 2. `errand run`, about 45 seconds. The trace scrolls: which items it opened, which it skipped. Then the digest. | 5 to 7 while it writes `run.py`; nothing during the run itself | This is the agentic part. The tool count wasn't known until it ran. The policy that governed it is the paragraph you read at minute one. "That's the loop from the diagram, going around." |
-| 18-23 | 3 | Prompt 3. `errand run` again, now with the writer allowed. `cat data/council.ics`, `open data/council.ics`. Run once more: the file doesn't change. | 8 and 9 while it writes; slide 9 ends on "then check", which is the cue to go back to the terminal | The leash: one write tool, "add only, never remove", and the file is the proof. |
+| 18-23 | 3 | Prompt 3, about 4 minutes. The builder fires the Friday job once through launchd; that is the run with the writer, about 60 seconds. `cat` the calendar file it names (`data/meetings.ics` in rehearsal) and `open` it. For "twice does nothing", repeat the add command from the log by hand, not a whole run: it says the meeting is already there, and `md5` of the file doesn't move. | 8 and 9 while it writes; slide 9 ends on "then check", which is the cue to go back to the terminal | The leash: one write tool, "add only, never remove", and the file is the proof. In rehearsal the model passed only the meeting's tag and the why-line; the date came from the council's listing, so it can't invent a meeting. |
 | 23-25 | | Swap: someone names their neighborhood. Edit two lines of .env and one paragraph of PROFILE.md. Run again. | 10, and leave it up through questions | "Different city is one block of watch.toml, if it's on Legistar or eSCRIBE." |
 
 ## Slides and the terminal
@@ -98,7 +99,7 @@ slides and terminal as two windows one keystroke apart.
 | 6 | Help the model make itself obsolete | Prompt 2 wait. |
 | 7 | When all you have is an LLM | Prompt 2 wait. It describes calendar idempotence, which doesn't exist until Prompt 3: say "the next prompt will prove this." |
 | 8 | Rules that must hold belong in code | Prompt 3 wait. Depends on the room knowing `.env` exists (see below). |
-| 9 | Say what done looks like, then check | Prompt 3 wait, last. "Then check" is the cue for the second run and the unchanged `.ics`. |
+| 9 | Say what done looks like, then check | Prompt 3 wait, last. "Then check" is the cue for the repeated add and the unchanged `.ics`. |
 | 10 | Find your own errand | The swap and the close. Leave it up. |
 
 ### Before opening the slides
@@ -205,7 +206,9 @@ Name one of these when the room asks.
 
 ## Showing the calendar
 
-`open data/council.ics` imports into Calendar.app and shows the events. For a
+The live build names its own file (`data/meetings.ics` on 2026-09-11); the tags use
+`data/council.ics`. `open` imports it into Calendar.app and shows the events, and
+opening it again may import them twice, so open it once. For a
 subscription that refreshes, run `python -m http.server 8765 --directory data` in the
 second terminal and subscribe Calendar.app to `http://localhost:8765/council.ics`.
 Either way, the diff of the file after a second run is the idempotence proof, and it is

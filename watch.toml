@@ -50,6 +50,7 @@ status = "In Process"
 # cat) and the Read tool through. Also pass --tools Bash, --setting-sources "",
 # --strict-mcp-config, and via --settings a PreToolUse hook that refuses any command but
 # one errand command with no shell syntax. Test it once, briefly: ask it to `cat .env`.
+# eSCRIBE attachment URLs contain ? and &, so tell the reader to single-quote URLs.
 #
 # The commands are `errand meetings`, `errand item`, `errand read`, `errand cases`.
 # The tool is one file, about 200 lines, with one way to do each thing.
